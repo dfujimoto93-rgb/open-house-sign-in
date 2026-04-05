@@ -1,0 +1,1034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Open House Sign-In</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --cream: #F5F0E8;
+  --white: #FFFFFF;
+  --gold: #C4A265;
+  --gold-hover: #b3913a;
+  --black: #1A1A1A;
+  --gray: #6B6B6B;
+  --light-gray: #E5E5E5;
+  --red: #B40101;
+  --green: #2D8A4E;
+  --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+html, body {
+  font-family: var(--font);
+  background: var(--cream);
+  color: var(--black);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-text-size-adjust: 100%;
+  min-height: 100vh;
+}
+
+.screen { display: none; min-height: 100vh; padding: 24px 16px 100px; }
+.screen.active { display: block; }
+
+.card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 28px 20px;
+  max-width: 560px;
+  margin: 0 auto;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+}
+
+h1 {
+  font-size: 22px;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 4px;
+  letter-spacing: 0.5px;
+}
+
+.subtitle {
+  text-align: center;
+  color: var(--gray);
+  font-size: 14px;
+  margin-bottom: 24px;
+}
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--gray);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="email"],
+input[type="number"],
+input[type="password"],
+select,
+textarea {
+  width: 100%;
+  height: 56px;
+  padding: 0 16px;
+  font-size: 17px;
+  font-family: var(--font);
+  border: 2px solid var(--light-gray);
+  border-radius: 12px;
+  background: var(--white);
+  color: var(--black);
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color 0.2s;
+}
+
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--gold);
+}
+
+textarea {
+  height: 100px;
+  padding: 14px 16px;
+  resize: vertical;
+}
+
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B6B6B' stroke-width='2' fill='none'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 40px;
+}
+
+/* Chip selectors */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  height: 48px;
+  padding: 0 20px;
+  border: 2px solid var(--light-gray);
+  border-radius: 24px;
+  font-size: 15px;
+  font-weight: 500;
+  cursor: pointer;
+  user-select: none;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.chip.selected {
+  border-color: var(--gold);
+  background: rgba(196, 162, 101, 0.1);
+  color: var(--black);
+}
+
+.chip:active { transform: scale(0.96); }
+
+/* Toggle */
+.toggle-group {
+  display: flex;
+  gap: 10px;
+}
+
+.toggle-btn {
+  flex: 1;
+  height: 48px;
+  border: 2px solid var(--light-gray);
+  border-radius: 12px;
+  background: var(--white);
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gray);
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.toggle-btn.selected {
+  border-color: var(--gold);
+  background: rgba(196, 162, 101, 0.1);
+  color: var(--black);
+}
+
+/* Buttons */
+.btn {
+  display: block;
+  width: 100%;
+  height: 56px;
+  border: none;
+  border-radius: 12px;
+  font-size: 17px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.15s;
+  -webkit-tap-highlight-color: transparent;
+  letter-spacing: 0.3px;
+}
+
+.btn:active { transform: scale(0.98); }
+
+.btn-gold {
+  background: var(--gold);
+  color: var(--white);
+}
+.btn-gold:hover { background: var(--gold-hover); }
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--light-gray);
+  color: var(--gray);
+}
+
+.btn-danger {
+  background: var(--red);
+  color: var(--white);
+}
+
+.btn-small {
+  width: auto;
+  height: 40px;
+  padding: 0 16px;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Lead counter */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  max-width: 560px;
+  margin: 0 auto 16px;
+}
+
+.lead-counter {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--gold);
+  background: rgba(196, 162, 101, 0.12);
+  padding: 6px 14px;
+  border-radius: 20px;
+}
+
+.gear-btn {
+  width: 44px;
+  height: 44px;
+  border: none;
+  background: rgba(0,0,0,0.05);
+  border-radius: 50%;
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.property-info {
+  text-align: center;
+  margin-bottom: 20px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--light-gray);
+}
+
+.property-info .address {
+  font-size: 16px;
+  font-weight: 700;
+}
+
+.property-info .price {
+  font-size: 14px;
+  color: var(--gold);
+  font-weight: 600;
+}
+
+/* Conditional fields */
+.conditional { display: none; }
+.conditional.visible { display: block; }
+
+/* Row layout */
+.row {
+  display: flex;
+  gap: 12px;
+}
+.row .form-group { flex: 1; }
+
+/* Saved confirmation */
+.saved-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 100;
+  align-items: center;
+  justify-content: center;
+}
+.saved-overlay.show { display: flex; }
+
+.saved-msg {
+  background: var(--white);
+  border-radius: 20px;
+  padding: 32px 40px;
+  text-align: center;
+  animation: pop 0.3s ease;
+}
+
+.saved-msg .check {
+  font-size: 48px;
+  color: var(--green);
+  margin-bottom: 8px;
+}
+
+.saved-msg p {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+@keyframes pop {
+  0% { transform: scale(0.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Admin table */
+.admin-table-wrap {
+  overflow-x: auto;
+  margin: 16px -20px;
+  padding: 0 20px;
+}
+
+.admin-table {
+  width: 100%;
+  min-width: 600px;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.admin-table th {
+  background: var(--cream);
+  padding: 10px 8px;
+  text-align: left;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--gray);
+  position: sticky;
+  top: 0;
+}
+
+.admin-table td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--light-gray);
+  vertical-align: top;
+}
+
+.admin-table .del-btn {
+  background: none;
+  border: none;
+  color: var(--red);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* PIN modal */
+.pin-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.pin-modal.show { display: flex; }
+
+.pin-box {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 32px 28px;
+  width: 320px;
+  text-align: center;
+}
+
+.pin-box h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+}
+
+.pin-box input {
+  width: 160px;
+  height: 56px;
+  text-align: center;
+  font-size: 28px;
+  letter-spacing: 12px;
+  margin: 0 auto 16px;
+  display: block;
+}
+
+.pin-error {
+  color: var(--red);
+  font-size: 14px;
+  margin-bottom: 12px;
+  min-height: 20px;
+}
+
+.admin-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+/* Clear confirm */
+.clear-modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+}
+.clear-modal.show { display: flex; }
+
+.clear-box {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 32px 28px;
+  width: 340px;
+  text-align: center;
+}
+
+.clear-box h2 { font-size: 18px; margin-bottom: 8px; }
+.clear-box p { font-size: 14px; color: var(--gray); margin-bottom: 16px; }
+
+.clear-box input {
+  width: 200px;
+  height: 48px;
+  text-align: center;
+  font-size: 18px;
+  letter-spacing: 4px;
+  margin: 0 auto 16px;
+  display: block;
+}
+
+/* Validation */
+.form-group.error input,
+.form-group.error select,
+.form-group.error textarea {
+  border-color: var(--red);
+}
+
+.error-msg {
+  color: var(--red);
+  font-size: 12px;
+  margin-top: 4px;
+  display: none;
+}
+
+.form-group.error .error-msg { display: block; }
+
+/* Footer */
+.compliance-footer {
+  text-align: center;
+  font-size: 10px;
+  color: var(--gray);
+  padding: 24px 16px 16px;
+  max-width: 560px;
+  margin: 0 auto;
+  line-height: 1.6;
+}
+
+/* Responsive */
+@media (max-width: 400px) {
+  .card { padding: 20px 16px; }
+  .row { flex-direction: column; gap: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== SCREEN 1: SETUP ==================== -->
+<div id="setup-screen" class="screen active">
+  <div class="card">
+    <h1>Open House Setup</h1>
+    <p class="subtitle">Configure before visitors arrive</p>
+
+    <div class="form-group">
+      <label for="setup-address">Property Address</label>
+      <input type="text" id="setup-address" placeholder="123 Kalakaua Ave, Honolulu">
+    </div>
+
+    <div class="form-group">
+      <label for="setup-price">Listing Price</label>
+      <input type="text" id="setup-price" placeholder="$1,250,000">
+    </div>
+
+    <div class="form-group">
+      <label for="setup-date">Open House Date</label>
+      <input type="text" id="setup-date">
+    </div>
+
+    <div class="form-group">
+      <label for="setup-agents">Hosting Agent(s)</label>
+      <input type="text" id="setup-agents" value="Dylan Fujimoto / Maxs Yoon">
+    </div>
+
+    <div class="form-group">
+      <label for="setup-pin">Admin PIN (4 digits)</label>
+      <input type="password" id="setup-pin" maxlength="4" inputmode="numeric" pattern="[0-9]*" placeholder="----">
+    </div>
+
+    <div style="margin-top: 24px;">
+      <button class="btn btn-gold" onclick="startOpenHouse()">Start Open House</button>
+    </div>
+  </div>
+
+  <div class="compliance-footer">
+    MY Realty Group | Keller Williams Honolulu<br>
+    1347 Kapiolani Blvd #300, Honolulu, HI 96814 | RB-2303<br>
+    Each office is independently owned and operated.
+  </div>
+</div>
+
+<!-- ==================== SCREEN 2: LEAD CAPTURE ==================== -->
+<div id="form-screen" class="screen">
+  <div class="top-bar">
+    <span class="lead-counter" id="lead-counter">0 leads</span>
+    <button class="gear-btn" onclick="openPinModal()" title="Admin">&#9881;</button>
+  </div>
+
+  <div class="card">
+    <div class="property-info" id="property-banner"></div>
+
+    <form id="lead-form" novalidate>
+      <div class="row">
+        <div class="form-group" data-required>
+          <label for="f-first">First Name</label>
+          <input type="text" id="f-first" autocomplete="given-name">
+          <div class="error-msg">Required</div>
+        </div>
+        <div class="form-group" data-required>
+          <label for="f-last">Last Name</label>
+          <input type="text" id="f-last" autocomplete="family-name">
+          <div class="error-msg">Required</div>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="form-group" data-required>
+          <label for="f-phone">Phone</label>
+          <input type="tel" id="f-phone" inputmode="tel" placeholder="(808) 555-1234">
+          <div class="error-msg">Required</div>
+        </div>
+        <div class="form-group" data-required>
+          <label for="f-email">Email</label>
+          <input type="email" id="f-email" inputmode="email" placeholder="email@example.com">
+          <div class="error-msg">Required</div>
+        </div>
+      </div>
+
+      <div class="form-group" data-required data-type="chips">
+        <label>I am a...</label>
+        <div class="chips" id="f-type">
+          <span class="chip" data-val="Buyer">Buyer</span>
+          <span class="chip" data-val="Seller">Seller</span>
+          <span class="chip" data-val="Investor">Investor</span>
+        </div>
+        <div class="error-msg">Select at least one</div>
+      </div>
+
+      <div class="form-group" data-required data-type="toggle">
+        <label>Working with a Realtor?</label>
+        <div class="toggle-group" id="f-realtor-toggle">
+          <button type="button" class="toggle-btn" data-val="Yes">Yes</button>
+          <button type="button" class="toggle-btn" data-val="No">No</button>
+        </div>
+        <div class="error-msg">Required</div>
+      </div>
+
+      <div class="conditional" id="realtor-details">
+        <div class="row">
+          <div class="form-group">
+            <label for="f-realtor-name">Realtor Name</label>
+            <input type="text" id="f-realtor-name">
+          </div>
+          <div class="form-group">
+            <label for="f-realtor-brokerage">Brokerage</label>
+            <input type="text" id="f-realtor-brokerage">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group" data-required>
+        <label for="f-timeframe">Timeframe</label>
+        <select id="f-timeframe">
+          <option value="">Select...</option>
+          <option>ASAP</option>
+          <option>1-3 Months</option>
+          <option>3-6 Months</option>
+          <option>6-12 Months</option>
+          <option>Just Looking</option>
+        </select>
+        <div class="error-msg">Required</div>
+      </div>
+
+      <div class="form-group">
+        <label>Pre-Approved?</label>
+        <div class="toggle-group" id="f-preapproved">
+          <button type="button" class="toggle-btn" data-val="Yes">Yes</button>
+          <button type="button" class="toggle-btn" data-val="No">No</button>
+          <button type="button" class="toggle-btn" data-val="Not Sure">Not Sure</button>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="f-price-range">Price Range</label>
+        <select id="f-price-range">
+          <option value="">Select...</option>
+          <option>Under $500K</option>
+          <option>$500K-$750K</option>
+          <option>$750K-$1M</option>
+          <option>$1M-$1.5M</option>
+          <option>$1.5M-$2M</option>
+          <option>$2M+</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="f-areas">Areas of Interest</label>
+        <input type="text" id="f-areas" placeholder="Kailua, Kakaako, Hawaii Kai...">
+      </div>
+
+      <div class="form-group">
+        <label for="f-source">How Did You Hear?</label>
+        <select id="f-source">
+          <option value="">Select...</option>
+          <option>Sign</option>
+          <option>Zillow</option>
+          <option>Realtor.com</option>
+          <option>Social Media</option>
+          <option>Friend / Family</option>
+          <option>Agent Referral</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="f-notes">Notes</label>
+        <textarea id="f-notes" placeholder="Conversation notes, follow-up reminders..."></textarea>
+      </div>
+
+      <button type="submit" class="btn btn-gold" style="margin-top: 8px;">Save Lead</button>
+    </form>
+  </div>
+
+  <div class="compliance-footer">
+    MY Realty Group | Keller Williams Honolulu<br>
+    1347 Kapiolani Blvd #300, Honolulu, HI 96814 | RB-2303<br>
+    Each office is independently owned and operated.
+  </div>
+</div>
+
+<!-- ==================== SCREEN 3: ADMIN ==================== -->
+<div id="admin-screen" class="screen">
+  <div class="card">
+    <h1>Admin Panel</h1>
+    <p class="subtitle" id="admin-subtitle"></p>
+
+    <div class="admin-actions">
+      <button class="btn btn-gold btn-small" onclick="exportCSV()">Export CSV</button>
+      <button class="btn btn-outline btn-small" onclick="showClearModal()">Clear All</button>
+      <button class="btn btn-outline btn-small" onclick="showScreen('form')">Back to Form</button>
+    </div>
+
+    <div class="admin-table-wrap">
+      <table class="admin-table" id="admin-table">
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Name</th>
+            <th>Phone</th>
+            <th>Email</th>
+            <th>Type</th>
+            <th>Timeframe</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody id="admin-tbody"></tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== OVERLAYS ==================== -->
+<div class="saved-overlay" id="saved-overlay">
+  <div class="saved-msg">
+    <div class="check">&#10003;</div>
+    <p>Saved!</p>
+  </div>
+</div>
+
+<div class="pin-modal" id="pin-modal">
+  <div class="pin-box">
+    <h2>Enter Admin PIN</h2>
+    <input type="password" id="pin-input" maxlength="4" inputmode="numeric" pattern="[0-9]*">
+    <div class="pin-error" id="pin-error"></div>
+    <button class="btn btn-gold btn-small" onclick="checkPin()" style="margin: 0 auto 8px; width: 140px;">Enter</button>
+    <button class="btn btn-outline btn-small" onclick="closePinModal()" style="margin: 0 auto; width: 140px;">Cancel</button>
+  </div>
+</div>
+
+<div class="clear-modal" id="clear-modal">
+  <div class="clear-box">
+    <h2>Clear All Data?</h2>
+    <p>Type CLEAR to confirm. This cannot be undone.</p>
+    <input type="text" id="clear-input" placeholder="CLEAR" autocomplete="off">
+    <button class="btn btn-danger btn-small" onclick="confirmClear()" style="margin: 0 auto 8px; width: 160px;">Delete All</button>
+    <button class="btn btn-outline btn-small" onclick="closeClearModal()" style="margin: 0 auto; width: 160px;">Cancel</button>
+  </div>
+</div>
+
+<script>
+// ==================== STATE ====================
+let config = JSON.parse(localStorage.getItem('oh_config') || 'null');
+let entries = JSON.parse(localStorage.getItem('oh_entries') || '[]');
+
+function saveConfig() { localStorage.setItem('oh_config', JSON.stringify(config)); }
+function saveEntries() { localStorage.setItem('oh_entries', JSON.stringify(entries)); }
+
+// ==================== INIT ====================
+(function init() {
+  // Set default date
+  const today = new Date();
+  const dateStr = today.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+  document.getElementById('setup-date').value = dateStr;
+
+  // If config exists, go straight to form
+  if (config) {
+    showScreen('form');
+  }
+
+  // Chip click handlers
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => chip.classList.toggle('selected'));
+  });
+
+  // Toggle button handlers
+  document.querySelectorAll('.toggle-group').forEach(group => {
+    group.querySelectorAll('.toggle-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        group.querySelectorAll('.toggle-btn').forEach(b => b.classList.remove('selected'));
+        btn.classList.add('selected');
+        // Conditional field for realtor toggle
+        if (group.id === 'f-realtor-toggle') {
+          const details = document.getElementById('realtor-details');
+          details.classList.toggle('visible', btn.dataset.val === 'Yes');
+        }
+      });
+    });
+  });
+
+  // Phone auto-format
+  document.getElementById('f-phone').addEventListener('input', function() {
+    let v = this.value.replace(/\D/g, '').slice(0, 10);
+    if (v.length >= 7) v = '(' + v.slice(0,3) + ') ' + v.slice(3,6) + '-' + v.slice(6);
+    else if (v.length >= 4) v = '(' + v.slice(0,3) + ') ' + v.slice(3);
+    else if (v.length >= 1) v = '(' + v;
+    this.value = v;
+  });
+
+  // Form submit
+  document.getElementById('lead-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    submitLead();
+  });
+
+  // PIN enter key
+  document.getElementById('pin-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') checkPin();
+  });
+
+  // Clear enter key
+  document.getElementById('clear-input').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') confirmClear();
+  });
+})();
+
+// ==================== SCREENS ====================
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(name + '-screen').classList.add('active');
+
+  if (name === 'form') updateFormScreen();
+  if (name === 'admin') updateAdminScreen();
+}
+
+function updateFormScreen() {
+  if (!config) return;
+  const banner = document.getElementById('property-banner');
+  banner.innerHTML = '<div class="address">' + escHtml(config.address) + '</div>' +
+    (config.price ? '<div class="price">' + escHtml(config.price) + '</div>' : '');
+  updateLeadCounter();
+}
+
+function updateLeadCounter() {
+  const n = entries.length;
+  document.getElementById('lead-counter').textContent = n + (n === 1 ? ' lead' : ' leads');
+}
+
+// ==================== SETUP ====================
+function startOpenHouse() {
+  const address = document.getElementById('setup-address').value.trim();
+  const pin = document.getElementById('setup-pin').value.trim();
+
+  if (!address) { alert('Please enter the property address.'); return; }
+  if (!pin || pin.length !== 4 || !/^\d{4}$/.test(pin)) { alert('Please enter a 4-digit PIN.'); return; }
+
+  config = {
+    address: address,
+    price: document.getElementById('setup-price').value.trim(),
+    date: document.getElementById('setup-date').value.trim(),
+    agents: document.getElementById('setup-agents').value.trim(),
+    pin: pin
+  };
+  saveConfig();
+  showScreen('form');
+}
+
+// ==================== LEAD SUBMISSION ====================
+function submitLead() {
+  // Clear previous errors
+  document.querySelectorAll('.form-group.error').forEach(g => g.classList.remove('error'));
+  let valid = true;
+
+  // Required text/select fields
+  const reqFields = [
+    { id: 'f-first' },
+    { id: 'f-last' },
+    { id: 'f-phone' },
+    { id: 'f-email' },
+    { id: 'f-timeframe' }
+  ];
+
+  reqFields.forEach(f => {
+    const el = document.getElementById(f.id);
+    if (!el.value.trim()) {
+      el.closest('.form-group').classList.add('error');
+      valid = false;
+    }
+  });
+
+  // Email format
+  const emailEl = document.getElementById('f-email');
+  if (emailEl.value.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value.trim())) {
+    emailEl.closest('.form-group').classList.add('error');
+    valid = false;
+  }
+
+  // Type chips (at least one)
+  const selectedTypes = Array.from(document.querySelectorAll('#f-type .chip.selected')).map(c => c.dataset.val);
+  if (selectedTypes.length === 0) {
+    document.querySelector('[data-type="chips"]').classList.add('error');
+    valid = false;
+  }
+
+  // Realtor toggle
+  const realtorSel = document.querySelector('#f-realtor-toggle .toggle-btn.selected');
+  if (!realtorSel) {
+    document.querySelector('[data-type="toggle"]').classList.add('error');
+    valid = false;
+  }
+
+  if (!valid) {
+    const firstErr = document.querySelector('.form-group.error');
+    if (firstErr) firstErr.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
+  // Build entry
+  const preApprovedSel = document.querySelector('#f-preapproved .toggle-btn.selected');
+  const entry = {
+    id: Date.now(),
+    timestamp: new Date().toISOString(),
+    firstName: document.getElementById('f-first').value.trim(),
+    lastName: document.getElementById('f-last').value.trim(),
+    phone: document.getElementById('f-phone').value.trim(),
+    email: document.getElementById('f-email').value.trim(),
+    type: selectedTypes.join(', '),
+    workingWithRealtor: realtorSel.dataset.val,
+    realtorName: document.getElementById('f-realtor-name').value.trim(),
+    realtorBrokerage: document.getElementById('f-realtor-brokerage').value.trim(),
+    timeframe: document.getElementById('f-timeframe').value,
+    preApproved: preApprovedSel ? preApprovedSel.dataset.val : '',
+    priceRange: document.getElementById('f-price-range').value,
+    areasOfInterest: document.getElementById('f-areas').value.trim(),
+    source: document.getElementById('f-source').value,
+    notes: document.getElementById('f-notes').value.trim()
+  };
+
+  entries.push(entry);
+  saveEntries();
+
+  // Show confirmation
+  showSaved();
+
+  // Reset form
+  document.getElementById('lead-form').reset();
+  document.querySelectorAll('.chip.selected').forEach(c => c.classList.remove('selected'));
+  document.querySelectorAll('.toggle-btn.selected').forEach(b => b.classList.remove('selected'));
+  document.getElementById('realtor-details').classList.remove('visible');
+  updateLeadCounter();
+
+  // Focus first field
+  setTimeout(() => document.getElementById('f-first').focus(), 600);
+}
+
+function showSaved() {
+  const overlay = document.getElementById('saved-overlay');
+  overlay.classList.add('show');
+  setTimeout(() => overlay.classList.remove('show'), 500);
+}
+
+// ==================== PIN / ADMIN ====================
+function openPinModal() {
+  document.getElementById('pin-input').value = '';
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-modal').classList.add('show');
+  setTimeout(() => document.getElementById('pin-input').focus(), 100);
+}
+
+function closePinModal() {
+  document.getElementById('pin-modal').classList.remove('show');
+}
+
+function checkPin() {
+  const val = document.getElementById('pin-input').value;
+  if (val === config.pin) {
+    closePinModal();
+    showScreen('admin');
+  } else {
+    document.getElementById('pin-error').textContent = 'Incorrect PIN';
+    document.getElementById('pin-input').value = '';
+    document.getElementById('pin-input').focus();
+  }
+}
+
+function updateAdminScreen() {
+  document.getElementById('admin-subtitle').textContent = entries.length + ' entries | ' + (config ? config.address : '');
+  const tbody = document.getElementById('admin-tbody');
+  tbody.innerHTML = '';
+
+  entries.forEach((e, i) => {
+    const tr = document.createElement('tr');
+    tr.innerHTML =
+      '<td>' + (i + 1) + '</td>' +
+      '<td>' + escHtml(e.firstName + ' ' + e.lastName) + '</td>' +
+      '<td>' + escHtml(e.phone) + '</td>' +
+      '<td>' + escHtml(e.email) + '</td>' +
+      '<td>' + escHtml(e.type) + '</td>' +
+      '<td>' + escHtml(e.timeframe) + '</td>' +
+      '<td><button class="del-btn" onclick="deleteEntry(' + e.id + ')" title="Delete">&times;</button></td>';
+    tbody.appendChild(tr);
+  });
+}
+
+function deleteEntry(id) {
+  entries = entries.filter(e => e.id !== id);
+  saveEntries();
+  updateAdminScreen();
+}
+
+// ==================== CLEAR ALL ====================
+function showClearModal() {
+  document.getElementById('clear-input').value = '';
+  document.getElementById('clear-modal').classList.add('show');
+  setTimeout(() => document.getElementById('clear-input').focus(), 100);
+}
+
+function closeClearModal() {
+  document.getElementById('clear-modal').classList.remove('show');
+}
+
+function confirmClear() {
+  if (document.getElementById('clear-input').value.trim() === 'CLEAR') {
+    entries = [];
+    saveEntries();
+    closeClearModal();
+    updateAdminScreen();
+  }
+}
+
+// ==================== CSV EXPORT ====================
+function exportCSV() {
+  if (entries.length === 0) { alert('No entries to export.'); return; }
+
+  const headers = [
+    'First Name', 'Last Name', 'Phone', 'Email', 'Type',
+    'Working with Realtor', 'Realtor Name', 'Realtor Brokerage',
+    'Timeframe', 'Pre-Approved', 'Price Range', 'Areas of Interest',
+    'Source', 'Notes', 'Property', 'Date', 'Agent(s)', 'Timestamp'
+  ];
+
+  const rows = entries.map(e => [
+    e.firstName, e.lastName, e.phone, e.email, e.type,
+    e.workingWithRealtor, e.realtorName, e.realtorBrokerage,
+    e.timeframe, e.preApproved, e.priceRange, e.areasOfInterest,
+    e.source, e.notes, config.address, config.date, config.agents, e.timestamp
+  ]);
+
+  let csv = '\uFEFF'; // UTF-8 BOM
+  csv += headers.map(csvCell).join(',') + '\r\n';
+  rows.forEach(row => {
+    csv += row.map(csvCell).join(',') + '\r\n';
+  });
+
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const safeName = config.address.replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-');
+  const safeDate = (config.date || '').replace(/[^a-zA-Z0-9]/g, '-').replace(/-+/g, '-');
+  a.href = url;
+  a.download = 'Open-House-Leads_' + safeName + '_' + safeDate + '.csv';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function csvCell(val) {
+  val = (val == null) ? '' : String(val);
+  if (val.includes(',') || val.includes('"') || val.includes('\n') || val.includes('\r')) {
+    return '"' + val.replace(/"/g, '""') + '"';
+  }
+  return val;
+}
+
+// ==================== UTILS ====================
+function escHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+</script>
+</body>
+</html>
