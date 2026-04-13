@@ -658,7 +658,8 @@ select {
 
     <div class="admin-actions">
       <button class="btn btn-gold btn-small" onclick="exportCSV()">Export CSV</button>
-      <button class="btn btn-outline btn-small" onclick="showClearModal()">Clear All</button>
+      <button class="btn btn-outline btn-small" onclick="showClearModal()">Clear Leads</button>
+      <button class="btn btn-danger btn-small" onclick="newOpenHouse()">New Open House</button>
       <button class="btn btn-outline btn-small" onclick="showScreen('form')">Back to Form</button>
     </div>
 
@@ -977,6 +978,18 @@ function confirmClear() {
     closeClearModal();
     updateAdminScreen();
   }
+}
+
+// ==================== NEW OPEN HOUSE (full reset) ====================
+function newOpenHouse() {
+  const msg = 'Start a new open house?\n\nThis clears the property info AND all ' +
+    entries.length + ' saved lead(s). Export CSV first if you haven\'t.';
+  if (!confirm(msg)) return;
+  entries = [];
+  config = null;
+  localStorage.removeItem('oh_entries');
+  localStorage.removeItem('oh_config');
+  location.reload();
 }
 
 // ==================== CSV EXPORT ====================
