@@ -983,21 +983,78 @@ function confirmClear() {
 function exportCSV() {
   if (entries.length === 0) { alert('No entries to export.'); return; }
 
+  // KW Command Import Sheet format — 54 columns, two header rows.
+  // Row 1: section labels. Row 2: field names. Data rows follow.
+  const sectionRow = new Array(54).fill('');
+  sectionRow[7]  = 'Key Dates';
+  [10,12,14,16].forEach(i => sectionRow[i] = 'INFO: only 1 number can be marked as primary');
+  [18,20,22].forEach(i => sectionRow[i] = 'INFO: only 1 email can be marked as primary');
+  sectionRow[23] = 'Primary Address';
+  sectionRow[29] = 'Use (1) Home, Work, Rental, Vacation, OR Other';
+  sectionRow[30] = 'Is Mailing? (Mark Y)';
+  sectionRow[31] = 'Other Addresses ';
+  sectionRow[37] = 'Use (1) Home, Work, Rental, Vacation, OR Other';
+  sectionRow[38] = 'Is Mailing? (Mark Y)';
+  sectionRow[39] = 'Other Addresses ';
+  sectionRow[45] = 'Use Home, Work, Rental, Vacation, OR Other';
+  sectionRow[46] = 'Is Mailing? (Mark Y)';
+  sectionRow[47] = 'Separate with Comma';
+  sectionRow[48] = 'Separate with Comma';
+  sectionRow[49] = 'Separate with comma';
+  sectionRow[50] = 'SOCIAL MEDIA';
+
   const headers = [
-    'First Name', 'Last Name', 'Phone', 'Email', 'Type',
-    'Working with Realtor', 'Realtor Name', 'Realtor Brokerage',
-    'Timeframe', 'Pre-Approved', 'Price Range', 'Areas of Interest',
-    'Source', 'Notes', 'Property', 'Date', 'Agent(s)', 'Timestamp'
+    'First Name','Middle Name','Last Name','Prefix','Suffix','Full Legal Name','About',
+    'Birthday','Home Anniversary',
+    'Cell Phone','Is Primary? (mark Y)','Home Phone','Is Primary? (mark Y)',
+    'Work Phone','Is Primary? (mark Y)','Other Phone','Is Primary? (mark Y)',
+    'Personal Email','Primary? (mark Y)','Work Email','Primary? (mark Y)',
+    'Other Email','Primary? (mark Y)',
+    'Address line one','Address line two','City','State','Zip code','Country ','Label','',
+    'Address line one','Address line two','City','State','Zip code','Country ','Label','',
+    'Address line one','Address line two','City','State','Zip code','Country ','Label','',
+    'Tags','Source','Notes','Facebook','Twitter','Linkedin','Pinterest','Instagram'
   ];
 
-  const rows = entries.map(e => [
-    e.firstName, e.lastName, e.phone, e.email, e.type,
-    e.workingWithRealtor, e.realtorName, e.realtorBrokerage,
-    e.timeframe, e.preApproved, e.priceRange, e.areasOfInterest,
-    e.source, e.notes, config.address, config.date, config.agents, e.timestamp
-  ]);
+  const buildNotes = (e) => {
+    const lines = [];
+    if (e.type) lines.push('Visitor Type: ' + e.type);
+    if (e.workingWithRealtor) lines.push('Working with Realtor: ' + e.workingWithRealtor);
+    if (e.realtorName) lines.push('Realtor Name: ' + e.realtorName);
+    if (e.realtorBrokerage) lines.push('Realtor Brokerage: ' + e.realtorBrokerage);
+    if (e.timeframe) lines.push('Timeframe: ' + e.timeframe);
+    if (e.preApproved) lines.push('Pre-Approved: ' + e.preApproved);
+    if (e.priceRange) lines.push('Price Range: ' + e.priceRange);
+    if (e.areasOfInterest) lines.push('Areas of Interest: ' + e.areasOfInterest);
+    if (config.address) lines.push('Property: ' + config.address);
+    if (config.date) lines.push('Open House Date: ' + config.date);
+    if (config.agents) lines.push('Agent(s): ' + config.agents);
+    if (e.timestamp) lines.push('Signed In: ' + e.timestamp);
+    if (e.notes) lines.push('Notes: ' + e.notes);
+    return lines.join(' | ');
+  };
+
+  const buildTags = (e) => {
+    const tags = ['Open House'];
+    if (e.type) tags.push(e.type);
+    if (config.address) tags.push(config.address);
+    return tags.join(', ');
+  };
+
+  const rows = entries.map(e => {
+    const row = new Array(54).fill('');
+    row[0]  = e.firstName || '';
+    row[2]  = e.lastName || '';
+    if (e.phone) { row[9] = e.phone; row[10] = 'Y'; }
+    if (e.email) { row[17] = e.email; row[18] = 'Y'; }
+    row[47] = buildTags(e);
+    row[48] = e.source || 'Open House';
+    row[49] = buildNotes(e);
+    return row;
+  });
 
   let csv = '\uFEFF'; // UTF-8 BOM
+  csv += sectionRow.map(csvCell).join(',') + '\r\n';
   csv += headers.map(csvCell).join(',') + '\r\n';
   rows.forEach(row => {
     csv += row.map(csvCell).join(',') + '\r\n';
